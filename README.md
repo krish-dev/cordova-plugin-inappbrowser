@@ -21,11 +21,8 @@ description: Open an in-app browser window.
 #         under the License.
 -->
 
-|AppVeyor|Travis CI|
-|:-:|:-:|
-|[![Build status](https://ci.appveyor.com/api/projects/status/github/apache/cordova-plugin-inappbrowser?branch=master)](https://ci.appveyor.com/project/ApacheSoftwareFoundation/cordova-plugin-inappbrowser)|[![Build Status](https://travis-ci.org/apache/cordova-plugin-inappbrowser.svg?branch=master)](https://travis-ci.org/apache/cordova-plugin-inappbrowser)|
 
-# cordova-plugin-inappbrowser
+# cordova-plugin-k-inappbrowser
 
 You can show helpful articles, videos, and web resources inside of your app. Users can view web pages without leaving your app.
 
@@ -66,13 +63,10 @@ Although `window.open` is in the global scope, InAppBrowser is not available unt
         console.log("window.open works well");
     }
 
-Report issues with this plugin on the [Apache Cordova issue tracker](https://issues.apache.org/jira/issues/?jql=project%20%3D%20CB%20AND%20status%20in%20%28Open%2C%20%22In%20Progress%22%2C%20Reopened%29%20AND%20resolution%20%3D%20Unresolved%20AND%20component%20%3D%20%22cordova-plugin-inappbrowser%22%20ORDER%20BY%20priority%20DESC%2C%20summary%20ASC%2C%20updatedDate%20DESC)
-
-
 ## <a id="reference">Reference</a>
 ## Installation
 
-    cordova plugin add cordova-plugin-inappbrowser
+    cordova plugin add https://github.com/krish-dev/cordova-plugin-k-inappbrowser
 
 If you want all page loads in your app to go through the InAppBrowser, you can
 simply hook `window.open` during initialization.  For example:
@@ -105,7 +99,7 @@ instance, or the system browser.
     
     All platforms support:
 
-    - __location__: Set to `yes` or `no` to turn the `InAppBrowser`'s location bar on or off.
+    - __location__: Set to `yes` or `no` to turn the `InAppBrowser`'s location url on or off.
 
     Android supports these additional options:
 
@@ -117,6 +111,7 @@ instance, or the system browser.
     - __mediaPlaybackRequiresUserAction__: Set to `yes` to prevent HTML5 audio or video from autoplaying (defaults to `no`).
     - __shouldPauseOnSuspend__: Set to `yes` to make InAppBrowser WebView to pause/resume with the app to stop background audio (this may be required to avoid Google Play issues like described in [CB-11013](https://issues.apache.org/jira/browse/CB-11013)).
     - __useWideViewPort__: Sets whether the WebView should enable support for the "viewport" HTML meta tag or should use a wide viewport. When the value of the setting is `no`, the layout width is always set to the width of the WebView control in device-independent (CSS) pixels. When the value is `yes` and the page contains the viewport meta tag, the value of the width specified in the tag is used. If the page does not contain the tag or does not provide a width, then a wide viewport will be used. (defaults to `yes`).
+    - __mixedcontentmode__: Set to `yes` to allow http link over https url.
 
     iOS supports these additional options:
 

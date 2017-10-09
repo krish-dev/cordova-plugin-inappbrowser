@@ -21,6 +21,7 @@ package org.apache.cordova.inappbrowser;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.provider.Browser;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -46,6 +47,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -91,6 +93,7 @@ public class InAppBrowser extends CordovaPlugin {
     private static final String SHOULD_PAUSE = "shouldPauseOnSuspend";
     private static final Boolean DEFAULT_HARDWARE_BACK = true;
     private static final String USER_WIDE_VIEW_PORT = "useWideViewPort";
+    private static final String MIXED_CONTENT_MODE = "mixedcontentmode";
 
     private InAppBrowserDialog dialog;
     private WebView inAppWebView;
@@ -105,6 +108,7 @@ public class InAppBrowser extends CordovaPlugin {
     private boolean mediaPlaybackRequiresUserGesture = false;
     private boolean shouldPauseInAppBrowser = false;
     private boolean useWideViewPort = true;
+    private boolean mixedContentMode = false;
     private ValueCallback<Uri> mUploadCallback;
     private ValueCallback<Uri[]> mUploadCallbackLollipop;
     private final static int FILECHOOSER_REQUESTCODE = 1;
@@ -568,7 +572,11 @@ public class InAppBrowser extends CordovaPlugin {
             }
             Boolean wideViewPort = features.get(USER_WIDE_VIEW_PORT);
             if (wideViewPort != null ) {
-		            useWideViewPort = wideViewPort.booleanValue();
+                useWideViewPort = wideViewPort.booleanValue();
+            }
+            Boolean mixedContent = features.get(MIXED_CONTENT_MODE);
+            if (mixedContent != null ) {
+                mixedContentMode = mixedContent.booleanValue();
             }
         }
 
@@ -612,7 +620,7 @@ public class InAppBrowser extends CordovaPlugin {
                 // Toolbar layout
                 RelativeLayout toolbar = new RelativeLayout(cordova.getActivity());
                 //Please, no more black!
-                toolbar.setBackgroundColor(android.graphics.Color.LTGRAY);
+                toolbar.setBackgroundColor(Color.WHITE);
                 toolbar.setLayoutParams(new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, this.dpToPixels(44)));
                 toolbar.setPadding(this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2));
                 toolbar.setHorizontalGravity(Gravity.LEFT);
@@ -700,11 +708,14 @@ public class InAppBrowser extends CordovaPlugin {
                 });
 
                 // Close/Done button
-                ImageButton close = new ImageButton(cordova.getActivity());
+                //ImageButton close = new ImageButton(cordova.getActivity());
+                Button close = new Button(cordova.getActivity());
                 RelativeLayout.LayoutParams closeLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
                 closeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 close.setLayoutParams(closeLayoutParams);
                 close.setContentDescription("Close Button");
+                close.setText("Tilbake");
+                close.setTextColor(Color.rgb(56,133,161));
                 close.setId(Integer.valueOf(5));
                 int closeResId = activityRes.getIdentifier("ic_action_remove", "drawable", cordova.getActivity().getPackageName());
                 Drawable closeIcon = activityRes.getDrawable(closeResId);
@@ -712,11 +723,11 @@ public class InAppBrowser extends CordovaPlugin {
                     close.setBackground(null);
                 else
                     close.setBackgroundDrawable(null);
-                close.setImageDrawable(closeIcon);
-                close.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                //close.setImageDrawable(closeIcon);
+                //close.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 back.setPadding(0, this.dpToPixels(10), 0, this.dpToPixels(10));
                 if (Build.VERSION.SDK_INT >= 16)
-                    close.getAdjustViewBounds();
+                    //close.getAdjustViewBounds();
 
                 close.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -777,6 +788,9 @@ public class InAppBrowser extends CordovaPlugin {
                 settings.setJavaScriptEnabled(true);
                 settings.setJavaScriptCanOpenWindowsAutomatically(true);
                 settings.setBuiltInZoomControls(showZoomControls);
+                if(mixedContentMode == true) {
+                    settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+                }
                 settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
 
                 if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -809,11 +823,6 @@ public class InAppBrowser extends CordovaPlugin {
                     CookieManager.getInstance().removeSessionCookie();
                 }
 
-                // Enable Thirdparty Cookies on >=Android 5.0 device
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    CookieManager.getInstance().setAcceptThirdPartyCookies(inAppWebView,true);
-                }
-
                 inAppWebView.loadUrl(url);
                 inAppWebView.setId(Integer.valueOf(6));
                 inAppWebView.getSettings().setLoadWithOverviewMode(true);
@@ -827,14 +836,12 @@ public class InAppBrowser extends CordovaPlugin {
 
                 // Add the views to our toolbar
                 toolbar.addView(actionButtonContainer);
-                toolbar.addView(edittext);
-                toolbar.addView(close);
-
-                // Don't add the toolbar if its been disabled
+                // Don't add location url if location set as no
                 if (getShowLocationBar()) {
-                    // Add our toolbar to our main view/layout
-                    main.addView(toolbar);
+                    toolbar.addView(edittext);
                 }
+                toolbar.addView(close);
+                main.addView(toolbar);
 
                 // Add our webview to our main view/layout
                 main.addView(inAppWebView);
